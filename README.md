@@ -31,6 +31,9 @@ This will create a text file with quiet period start, quiet end, injection start
 There is also an associated notebook under notebooks/reports/plot-sme-injections.ipynb that creates some plots with this file.
 
 ### Matching injections to probe location
+After you've identified all of the injection/quiet periods we need to find the location of the Van Allen Probes during these periods. Using this information we can pick out which times we should download the EMFISIS data for. To perform this analysis run the script at: src/features/match-probe-location-to-injection.py
+
+
 
 
 
