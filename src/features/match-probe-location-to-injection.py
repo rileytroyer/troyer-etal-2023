@@ -10,6 +10,7 @@ science@rileytroyer.com
 from datetime import datetime
 from dateutil import parser
 import h5py
+import logging
 import numpy as np
 import os
 import pandas as pd
@@ -62,11 +63,14 @@ rbsp_matched_quiet_times = {}
 start_i = 0
 # Loop through each quiet and get RBSP probe positions
 for df_index in quiet_times.index:
+
+    if df_index%100 == 0:
+        logging.info(f'Getting satellite location for {df_index} of {len(quiet_times.index)} periods.')
     
     # Figure out which files we will need to read in
     # May need more than one if quiet period is in 2 UTC days
-    start_time = parser.isoparse(quiet_time.loc[df_index, 'Quiet Start'])
-    end_time = parser.isoparse(quiet_time.loc[df_index, 'Quiet End'])
+    start_time = parser.isoparse(quiet_times.loc[df_index, 'Quiet Start'])
+    end_time = parser.isoparse(quiet_times.loc[df_index, 'Quiet End'])
 
     file_dates = pd.date_range(start_time.date(), end_time.date(),
                                freq='d').strftime('%Y%m%d').tolist()
@@ -159,4 +163,6 @@ for key in keys:
 with open('data/interim/rbsp-quiet-time-location.pickle',
                   'wb') as handle:
     pickle.dump(rbsp_matched_quiet_times, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+logging.info('All finished. Wrote to file: data/interim/rbsp-quiet-time-location.pickle')
 

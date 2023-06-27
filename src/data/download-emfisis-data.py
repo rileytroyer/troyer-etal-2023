@@ -12,6 +12,7 @@ import logging
 import numpy as np
 import multiprocessing
 import os
+import pickle
 import requests
 import wget
 
@@ -28,25 +29,15 @@ logging.basicConfig(filename = f'logs/download-emfisis-data-{datetime.today().da
 
 
 ####################### Local Functions #######################
-def get_url_paths(url, ext='', params={}):
+def get_url_paths(url:str, ext:str='', params:dict={}) -> list:
     """ Function to extract file names from https directory
     Gets files in url directory with ext extension
-    Does this by parsing the html text from the webpage. I did not
-    write this function. Requires libraries requests,
-    bs4.BeautifulSoup
-    DEPENDENCIES
-        bs4.BeautifulSoup, requests
+    Does this by parsing the html text from the webpage.
     INPUT
-    url
-        type: string
-        about: url of directory to get files from
-    ext
-        type: string
-        about: extension of the files
+    url- url of directory to get files from 
+    ext- extension of the files
     OUTPUT
-    parent
-        type: list
-        about: list of all file pathnames within directory
+    parent- list of all file pathnames within directory
     """
 
     response = requests.get(url, params=params)
@@ -63,12 +54,22 @@ def get_url_paths(url, ext='', params={}):
 
 ####################### START OF PROGRAM #######################
 
+# Define directories to save the various data
+mag_save_dir = 'data/raw/mag-waveform/'
+psd_save_dir = 'data/raw/l4-mag/'
+
+# Check if these exists
+if not os.path.exists(mag_save_dir):
+    os.makedirs(mag_save_dir)
+if not os.path.exists(psd_save_dir):
+    os.makedirs(psd_save_dir)
+
 # Read in the pickle file with times to download data for
 with open('data/interim/rbsp-quiet-time-location.pickle',
           'rb') as handle:
     passby_dict = pickle.load(handle) 
 
-for i, key in enumerate(list(passby_dict.keys())[0:1]):
+for key in list(passby_dict.keys())[0:10]:
     
     for probe in passby_dict[key].keys():
         
@@ -78,7 +79,7 @@ for i, key in enumerate(list(passby_dict.keys())[0:1]):
         
         for date in dates:
         
-            if date > dt(2019, 7, 16).date():
+            if date > datetime(2019, 7, 16).date():
                 continue
                 
             # Web directory where l4 psd files are stored
@@ -89,15 +90,15 @@ for i, key in enumerate(list(passby_dict.keys())[0:1]):
             # Find all files in html directory
             l4_files = get_url_paths(l4_data_url, '.cdf')
                 
-           # See if there is a sheath corrected file
+            # See if there is a sheath corrected file
             e_corrected_filebase = ('rbsp-' + probe[-1].lower()
                                     + '_wna-survey-sheath-corrected-e_emfisis-L4_'
                                     + str(date.year) + str(date.month).zfill(2) 
                                     + str(date.day).zfill(2))
-            l4_psd_filebase = ('rbsp-' + probe[-1].lower()
-                                + '_wna-survey_emfisis-L4_'
-                                + str(date.year) + str(date.month).zfill(2) 
-                                + str(date.day).zfill(2))
+            # l4_psd_filebase = ('rbsp-' + probe[-1].lower()
+            #                     + '_wna-survey_emfisis-L4_'
+            #                     + str(date.year) + str(date.month).zfill(2) 
+            #                     + str(date.day).zfill(2))
             
             # If there isn't a sheath corrected file notify and create a 'no-data' file
             try:
@@ -121,27 +122,29 @@ for i, key in enumerate(list(passby_dict.keys())[0:1]):
                                     f' with error: {e}.')
                     continue
                 
-            # Get the specific L4 PSD file we are looking for
-            l4_psd_filepathname = [f for f in l4_files if l4_psd_filebase in f][-1]
-            l4_psd_filename = l4_psd_filepathname.split('/')[-1]
+            # # Get the specific L4 PSD file we are looking for
+            # l4_psd_filepathname = [f for f in l4_files if l4_psd_filebase in f][-1]
+            # l4_psd_filename = l4_psd_filepathname.split('/')[-1]
             
-            # And download it if the file doesn't already exists
-            if not os.path.exists(psd_save_dir + l4_psd_filename):
-                try:
-                    wget.download(l4_psd_filepathname, psd_save_dir, bar=None)
-                except Exception as e:
-                    logging.warning(f'Unable to download: {l4_psd_filepathname} with'
-                                    f' error: {e}.')
-                    continue
+            # # And download it if the file doesn't already exists
+            # if not os.path.exists(psd_save_dir + l4_psd_filename):
+            #     try:
+            #         wget.download(l4_psd_filepathname, psd_save_dir, bar=None)
+            #     except Exception as e:
+            #         logging.warning(f'Unable to download: {l4_psd_filepathname} with'
+            #                         f' error: {e}.')
+            #         continue
             
             # Web directory where magnetic field (for gyrofrequency) files are stored
-            mag_file_url = ('https://emfisis.physics.uiowa.edu/Flight/RBSP-'
-                            + probe[-1].upper() + '/L3/' 
-                            + str(date.year) + '/' + str(date.month).zfill(2)
-                            + '/' + str(date.day).zfill(2) + '/')
+            # mag_file_url = ('https://emfisis.physics.uiowa.edu/Flight/RBSP-'
+            #                 + probe[-1].upper() + '/L3/' 
+            #                 + str(date.year) + '/' + str(date.month).zfill(2)
+            #                 + '/' + str(date.day).zfill(2) + '/')
+            mag_file_url = (f'https://cdaweb.gsfc.nasa.gov/pub/data/rbsp/{probe}/'
+                            f'l3/emfisis/magnetometer/4sec/gei/{date.year}/')
 
             mag_filebase = ('rbsp-' + probe[-1].lower() +
-                            '_magnetometer_4sec-gei_emfisis-L3_'
+                            '_magnetometer_4sec-gei_emfisis-l3_'
                             + str(date.year) + str(date.month).zfill(2) 
                             + str(date.day).zfill(2))
             
@@ -161,3 +164,5 @@ for i, key in enumerate(list(passby_dict.keys())[0:1]):
                     logging.warning(f'Unable to download: {mag_filepathname} with'
                                     f' error: {e}.')
                     continue
+
+logging.info('All finished.')
