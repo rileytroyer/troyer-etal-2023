@@ -56,6 +56,13 @@ The code then loops through each time within the a quiet period and first checks
 
 ## 3. Data analysis
 
+### 3.1 Create the data to visualize
+Before creating any plots or analysis you need to compile just the data you need and write this to another h5 file. This isn't entirely neccessary, but speeds up and similifies the analysis/plotting process. To do this run the script at src/features/create-plotting-data.py
+
+You may want to run this for a psd type of both integrated and max. This just specifies the chorus measurement is based on the max psd value for a timestep or the integrated psd. 
+
+### 3.2
+
 
 
 
