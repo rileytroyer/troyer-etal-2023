@@ -72,6 +72,10 @@ def download_rbsp_files(year:int):
     # Where to save the data to
     save_dir='data/raw/rbsp-magephem/'
 
+    # Create directory if it doesn't exists
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
     # Loop through all the specified years
     for probe in ['rbspa', 'rbspb']:
 
@@ -86,6 +90,8 @@ def download_rbsp_files(year:int):
 
         # Run function to get all file pathnames 
         files = get_url_paths(url, ext)
+
+        logging.info(f'Response received from: {url}.')
 
         # Only use T89Q magnetic field model
         files_t89q = np.array([s for s in files if 'T89Q' in s])
@@ -126,7 +132,7 @@ def download_rbsp_files(year:int):
 if __name__ == '__main__':
 
     # Download files for specified years and probe
-    years = ['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019']
+    years = ['2012']#['2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019']
 
     # Specify where to save files
     save_dir = 'data/raw/rbsp-magephem/'
