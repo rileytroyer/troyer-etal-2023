@@ -61,7 +61,10 @@ Before creating any plots or analysis you need to compile just the data you need
 
 You may want to run this for a psd type of both integrated and max. This just specifies the chorus measurement is based on the max psd value for a timestep or the integrated psd. 
 
-### 3.2
+### 3.2 Create plots
+To do the analysis and create figures see the notebook at: notebooks/exploratory/data-visualization.ipynb
+
+This will walk you though the figures I used the paper.
 
 
 
