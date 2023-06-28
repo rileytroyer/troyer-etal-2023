@@ -70,6 +70,8 @@ with open('data/interim/rbsp-quiet-time-location.pickle',
     passby_dict = pickle.load(handle) 
 
 for key in list(passby_dict.keys())[0:10]:
+
+    logging.info(f'Downloading data for: {key}.')
     
     for probe in passby_dict[key].keys():
         
