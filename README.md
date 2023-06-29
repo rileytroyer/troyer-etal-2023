@@ -66,6 +66,8 @@ To do the analysis and create figures see the notebook at: notebooks/exploratory
 
 This will walk you though the figures I used the paper.
 
+Finally the following notebooks plots the data from the ucla simulation: notebooks/exploratory/ucla-simulation.ipynb
+
 
 
 
